@@ -5,7 +5,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class Music(
-    val id: String,
+    val id: Long,
     val name: String,
     val singer: String,
     val duration: Int,

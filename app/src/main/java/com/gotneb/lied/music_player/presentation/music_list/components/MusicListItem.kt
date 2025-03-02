@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.gotneb.lied.R
@@ -36,12 +37,12 @@ import com.gotneb.lied.ui.theme.LiedTheme
 @Composable
 fun MusicListItem(
     music: Music,
-    onMusicClick: () -> Unit,
-    onFavoriteClick: (String) -> Unit,
+    onMusicClick: (Long) -> Unit,
+    onFavoriteClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        onClick = onMusicClick,
+        onClick = { onMusicClick(music.id) },
         modifier = modifier
     ) {
         Row(
@@ -56,9 +57,13 @@ fun MusicListItem(
                     .clip(RoundedCornerShape(8.dp))
                     .size(48.dp)
             )
-            Column {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = music.name,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 Row(
@@ -82,7 +87,6 @@ fun MusicListItem(
                     )
                 }
             }
-            Spacer(Modifier.width(1.dp).weight(1f))
             Column(
                 modifier = Modifier.fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
@@ -99,7 +103,7 @@ fun MusicListItem(
 }
 
 internal val musicPreview = Music(
-    id = "1",
+    id = 1,
     name = "Ginnme no Majo",
     singer = "Yatezy Records - Topic",
     duration = 174,
