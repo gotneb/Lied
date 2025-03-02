@@ -4,18 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gotneb.lied.music_player.presentation.music_list.MusicListScreen
+import com.gotneb.lied.music_player.presentation.music_list.MusicListViewModel
 import com.gotneb.lied.ui.theme.LiedTheme
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +17,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LiedTheme {
-                MusicListScreen()
+                val viewModel = koinViewModel<MusicListViewModel>()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                MusicListScreen(
+                    state = state,
+                    onAction = viewModel::onAction,
+                )
             }
         }
     }

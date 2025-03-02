@@ -42,6 +42,8 @@ android {
 
 dependencies {
 
+    implementation("androidx.activity:activity-compose:1.10.1")
+
     implementation(libs.bundles.compose)
 
     implementation(libs.bundles.koin)
