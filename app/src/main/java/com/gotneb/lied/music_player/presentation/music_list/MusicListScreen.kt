@@ -21,12 +21,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.gotneb.lied.music_player.data.utils.MockUtils
 import com.gotneb.lied.music_player.presentation.music_list.components.MusicListItem
 import com.gotneb.lied.music_player.presentation.music_list.components.SearchBar
 import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
@@ -64,6 +67,12 @@ fun MusicListScreen(
         } else {
             permissionLauncher.launch(permission)
         }
+    }
+
+    val musics = if (LocalInspectionMode.current) {
+        remember { MockUtils.getMusics() }
+    } else {
+        state.musics
     }
 
     Scaffold(
@@ -109,7 +118,7 @@ fun MusicListScreen(
                     color = MaterialTheme.colorScheme.onBackground,
                 )
             }
-            items(state.musics) { music ->
+            items(musics) { music ->
                 MusicListItem(
                     music = music,
                     onMusicClick = { musicId -> onAction(MusicListAction.OnMusicClick(musicId)) },
