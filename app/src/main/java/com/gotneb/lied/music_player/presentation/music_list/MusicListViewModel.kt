@@ -1,5 +1,6 @@
 package com.gotneb.lied.music_player.presentation.music_list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gotneb.lied.music_player.domain.local.MusicRepository
@@ -50,7 +51,7 @@ class MusicListViewModel(
     }
 
     fun loadMusic() {
-        println("loadMusic: Getting musics...")
+        Log.d(TAG, "loadMusic: Getting musics...")
         repository.getMusicList()?.let { musics ->
             _state.update { it.copy(musics = musics) }
         }

@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -54,7 +56,7 @@ fun MusicListItem(
                 painter = painterResource(id = music.coverRes),
                 contentDescription = "Music cover",
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .size(48.dp)
             )
             Column(
@@ -68,11 +70,14 @@ fun MusicListItem(
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
                         text = music.singer,
                         color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, false)
                     )
                     Box(
                         Modifier
@@ -95,7 +100,9 @@ fun MusicListItem(
                     imageVector = Icons.Default.FavoriteBorder,
                     contentDescription = "Favorite music",
                     tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.clickable { onFavoriteClick(music.id) }
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .clickable { onFavoriteClick(music.id) }
                 )
             }
         }
@@ -108,7 +115,7 @@ internal val musicPreview = Music(
     singer = "Yatezy Records - Topic",
     duration = 174,
     isFavorite = false,
-    coverRes = R.drawable.no_cover_music,
+    coverRes = R.drawable.music_cover_placeholder,
 )
 
 @PreviewLightDark

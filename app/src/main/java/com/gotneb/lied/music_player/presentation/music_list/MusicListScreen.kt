@@ -1,5 +1,6 @@
 package com.gotneb.lied.music_player.presentation.music_list
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -32,8 +34,8 @@ import androidx.core.content.ContextCompat
 import com.gotneb.lied.music_player.data.utils.MockUtils
 import com.gotneb.lied.music_player.presentation.music_list.components.MusicListItem
 import com.gotneb.lied.music_player.presentation.music_list.components.SearchBar
-import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
 import com.gotneb.lied.ui.theme.LiedTheme
+import com.gotneb.lied.R
 
 @Composable
 fun MusicListScreen(
@@ -41,8 +43,6 @@ fun MusicListScreen(
     onAction: (MusicListAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -54,12 +54,14 @@ fun MusicListScreen(
         }
     }
 
+    val context = LocalContext.current
+
     // Check and request permission when the screen is launched
     LaunchedEffect(Unit) {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            android.Manifest.permission.READ_MEDIA_AUDIO
+            Manifest.permission.READ_MEDIA_AUDIO
         } else {
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE
         }
 
         if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
@@ -84,8 +86,8 @@ fun MusicListScreen(
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "PLay random music",
+                    painter = painterResource(R.drawable.shuffle),
+                    contentDescription = "Play random music",
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
@@ -118,7 +120,10 @@ fun MusicListScreen(
                     color = MaterialTheme.colorScheme.onBackground,
                 )
             }
-            items(musics) { music ->
+            items(
+                items = musics,
+                key = { music -> music.id },
+            ) { music ->
                 MusicListItem(
                     music = music,
                     onMusicClick = { musicId -> onAction(MusicListAction.OnMusicClick(musicId)) },

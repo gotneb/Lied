@@ -37,7 +37,7 @@ class MusicRepositoryImpl(
                 val artistName = cursor.getString(artistColumn)
                 val duration = cursor.getInt(duration)
 
-                musicList.add(Music(id, name, artistName, duration, false, R.drawable.no_cover_music))
+                musicList.add(Music(id, name, artistName, duration, false, R.drawable.music_cover_placeholder))
                 println("Music -> $name - $artistName")
             }
 
