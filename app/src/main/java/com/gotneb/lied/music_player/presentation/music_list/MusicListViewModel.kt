@@ -14,10 +14,6 @@ class MusicListViewModel(
     private val repository: MusicRepository
 ) : ViewModel() {
 
-    companion object {
-        const val TAG = "MusicListViewModel"
-    }
-
     private val _state = MutableStateFlow(MusicListState())
     val state = _state
         .onStart { loadMusic() }
@@ -39,7 +35,11 @@ class MusicListViewModel(
                 ) }
             }
 
-            is MusicListAction.OnMusicClick -> TODO()
+            is MusicListAction.OnMusicClick -> { musicId: Long ->
+                _state.update { it.copy(
+                    selectedMusic = _state.value.musics.find { music -> music.id == musicId }
+                ) }
+            }
             is MusicListAction.OnMusicFavoriteClick -> TODO()
             is MusicListAction.OnSearchQueryChange -> {
                 _state.update { it.copy(searchQuery = action.query) }
@@ -51,9 +51,13 @@ class MusicListViewModel(
     }
 
     fun loadMusic() {
-        Log.d(TAG, "loadMusic: Getting musics...")
+        Log.d(TAG, "loadMusic | Getting musics...")
         repository.getMusicList()?.let { musics ->
             _state.update { it.copy(musics = musics) }
         }
+    }
+
+    companion object {
+        val TAG = MusicListViewModel::class.simpleName!!
     }
 }

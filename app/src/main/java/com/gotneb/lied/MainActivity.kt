@@ -4,14 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gotneb.lied.core.navigation.Route
+import com.gotneb.lied.music_player.presentation.music_list.MusicListAction
 import com.gotneb.lied.music_player.presentation.music_list.MusicListScreen
 import com.gotneb.lied.music_player.presentation.music_list.MusicListViewModel
+import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
+import com.gotneb.lied.music_player.presentation.music_player.MusicPlayerScreen
+import com.gotneb.lied.music_player.presentation.music_player.MusicPlayerState
 import com.gotneb.lied.ui.theme.LiedTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -23,16 +28,33 @@ class MainActivity : ComponentActivity() {
             LiedTheme {
                 val navController = rememberNavController()
 
+                val viewModel = koinViewModel<MusicListViewModel>()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+
                 NavHost(
                     navController = navController,
                     startDestination = Route.MusicList,
                 ) {
                     composable<Route.MusicList> {
-                        val viewModel = koinViewModel<MusicListViewModel>()
-                        val state by viewModel.state.collectAsStateWithLifecycle()
                         MusicListScreen(
                             state = state,
-                            onAction = viewModel::onAction,
+                            onAction = { action ->
+                                viewModel.onAction(action)
+                                if (action is MusicListAction.OnMusicClick) {
+                                    navController.navigate(Route.MusicPlayer(action.id))
+                                }
+                            },
+                        )
+                    }
+                    composable<Route.MusicPlayer>(
+                        enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
+                        exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
+                        popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
+                        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
+                    ) {
+                        MusicPlayerScreen(
+                            state = MusicPlayerState(currentMusic = musicPreview),
+                            onAction = { /* TODO */ },
                         )
                     }
                 }
