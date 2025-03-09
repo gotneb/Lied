@@ -8,6 +8,7 @@
 </div>
 
 ## Architecture
+### ⚠️ Work in progress
 This project follows the **MVI** architecture pattern to separate concerns and promote modularity.
 - State Management: ViewModels manage UI states efficiently, ensuring responsive and clean UI updates.
 - Separation of Concerns: Clear distinction between UI logic, business logic, and data layers.
