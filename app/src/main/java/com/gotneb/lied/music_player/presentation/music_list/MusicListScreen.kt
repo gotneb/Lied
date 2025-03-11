@@ -125,7 +125,7 @@ fun MusicListScreen(
                 MusicListItem(
                     music = music,
                     onMusicClick = { musicId -> onAction(MusicListAction.OnMusicClick(musicId)) },
-                    onFavoriteClick = { musicId -> onAction(MusicListAction.OnMusicFavoriteClick(musicId)) }
+                    onFavoriteClick = { musicId -> onAction(MusicListAction.OnFavoriteMusicClick(musicId)) }
                 )
             }
         }

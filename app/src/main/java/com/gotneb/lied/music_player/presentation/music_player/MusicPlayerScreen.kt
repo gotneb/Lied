@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.gotneb.lied.R
+import com.gotneb.lied.music_player.presentation.music_list.MusicListAction
 import com.gotneb.lied.music_player.presentation.music_list.MusicListState
 import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
 import com.gotneb.lied.music_player.presentation.music_player.components.ProgressAudioBar
@@ -38,7 +39,7 @@ import com.gotneb.lied.ui.theme.LiedTheme
 @Composable
 fun MusicPlayerScreen(
     state: MusicListState,
-    onAction: (MusicPlayerAction) -> Unit,
+    onAction: (MusicListAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold { innerPadding ->
@@ -50,7 +51,7 @@ fun MusicPlayerScreen(
         ) {
             Row {
                 IconButton(
-                    onClick = { onAction(MusicPlayerAction.OnGoBackClick) },
+                    onClick = { onAction(MusicListAction.OnGoBackClick) },
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowLeft,
@@ -76,7 +77,7 @@ fun MusicPlayerScreen(
                     Text(text = state.currentMusic?.singer ?: "No singer")
                 }
                 IconButton(onClick = {
-                    state.currentMusic?.let { onAction(MusicPlayerAction.OnFavoriteClick(state.currentMusic.id)) }
+                    state.currentMusic?.let { onAction(MusicListAction.OnFavoriteMusicClick(state.currentMusic.id)) }
                 }) {
                     Icon(
                         imageVector = Icons.Default.FavoriteBorder,
@@ -94,14 +95,14 @@ fun MusicPlayerScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                IconButton(onClick = { onAction(MusicPlayerAction.OnShuffleClick) }) {
+                IconButton(onClick = { onAction(MusicListAction.OnShuffleClick) }) {
                     Icon(
                         painter = painterResource(R.drawable.shuffle),
                         contentDescription = "Select random music",
                         tint = MaterialTheme.colorScheme.onBackground,
                     )
                 }
-                IconButton(onClick = { onAction(MusicPlayerAction.OnPreviousClick) }) {
+                IconButton(onClick = { onAction(MusicListAction.OnPreviousClick) }) {
                     Icon(
                         painter = painterResource(R.drawable.skip_inward),
                         contentDescription = "Play previous music",
@@ -111,9 +112,9 @@ fun MusicPlayerScreen(
                 IconButton(
                     onClick = {
                         if (state.isPlaying) {
-                            onAction(MusicPlayerAction.OnPauseClick)
+                            onAction(MusicListAction.OnPauseMusicClick)
                         } else {
-                            onAction(MusicPlayerAction.OnPlayClick)
+                            onAction(MusicListAction.OnNextMusicClick)
                         }
                     },
                     modifier = Modifier
@@ -127,14 +128,14 @@ fun MusicPlayerScreen(
                         tint = MaterialTheme.colorScheme.background,
                     )
                 }
-                IconButton(onClick = { onAction(MusicPlayerAction.OnNextClick) }) {
+                IconButton(onClick = { onAction(MusicListAction.OnNextMusicClick) }) {
                     Icon(
                         painter = painterResource(R.drawable.skip_forward),
                         contentDescription = "Play next music",
                         tint = MaterialTheme.colorScheme.onBackground,
                     )
                 }
-                IconButton(onClick = { onAction(MusicPlayerAction.OnRepeatClick) }) {
+                IconButton(onClick = { onAction(MusicListAction.OnRepeatClick) }) {
                     Icon(
                         painter = painterResource(R.drawable.repeat),
                         contentDescription = "Repeat music",

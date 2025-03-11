@@ -43,7 +43,7 @@ class MusicListViewModel(
                     currentMusic = _state.value.musicList.find { music -> music.id == action.id }
                 ) }
             }
-            is MusicListAction.OnMusicFavoriteClick -> TODO()
+            is MusicListAction.OnFavoriteMusicClick -> TODO()
             is MusicListAction.OnSearchQueryChange -> {
                 _state.update { it.copy(searchQuery = action.query) }
             }
@@ -51,8 +51,8 @@ class MusicListViewModel(
             MusicListAction.OnSearchClick -> TODO()
             MusicListAction.OnShuffleClick -> TODO()
             MusicListAction.OnGoBackClick -> TODO()
-            MusicListAction.OnNextClick -> TODO()
-            MusicListAction.OnPauseMusic -> TODO()
+            MusicListAction.OnNextMusicClick -> TODO()
+            MusicListAction.OnPauseMusicClick -> TODO()
             MusicListAction.OnPlayMusic -> TODO()
             MusicListAction.OnPreviousClick -> TODO()
             MusicListAction.OnRepeatClick -> TODO()
