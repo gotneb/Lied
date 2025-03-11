@@ -7,5 +7,5 @@ sealed class Route {
     data object MusicList : Route()
 
     @Serializable
-    data class MusicPlayer(val musicId: Long) : Route()
+    data object MusicPlayer : Route()
 }

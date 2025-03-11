@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,11 +29,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.gotneb.lied.R
 import com.gotneb.lied.music_player.data.utils.MockUtils
 import com.gotneb.lied.music_player.presentation.music_list.components.MusicListItem
 import com.gotneb.lied.music_player.presentation.music_list.components.SearchBar
 import com.gotneb.lied.ui.theme.LiedTheme
-import com.gotneb.lied.R
 
 @Composable
 fun MusicListScreen(
@@ -74,7 +72,7 @@ fun MusicListScreen(
     val musics = if (LocalInspectionMode.current) {
         remember { MockUtils.getMusics() }
     } else {
-        state.musics
+        state.musicList
     }
 
     Scaffold(
@@ -87,7 +85,7 @@ fun MusicListScreen(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.shuffle),
-                    contentDescription = "Play random music",
+                    contentDescription = "Play a random music",
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
@@ -116,7 +114,7 @@ fun MusicListScreen(
             }
             item {
                 Text(
-                    text = "${state.musics.size} Songs",
+                    text = "${state.musicList.size} Songs",
                     color = MaterialTheme.colorScheme.onBackground,
                 )
             }

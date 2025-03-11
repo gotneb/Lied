@@ -1,6 +1,7 @@
 package com.gotneb.lied
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gotneb.lied.core.navigation.Route
 import com.gotneb.lied.music_player.presentation.music_list.MusicListAction
 import com.gotneb.lied.music_player.presentation.music_list.MusicListScreen
+import com.gotneb.lied.music_player.presentation.music_list.MusicListState
 import com.gotneb.lied.music_player.presentation.music_list.MusicListViewModel
 import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
 import com.gotneb.lied.music_player.presentation.music_player.MusicPlayerScreen
@@ -41,7 +43,7 @@ class MainActivity : ComponentActivity() {
                             onAction = { action ->
                                 viewModel.onAction(action)
                                 if (action is MusicListAction.OnMusicClick) {
-                                    navController.navigate(Route.MusicPlayer(action.id))
+                                    navController.navigate(Route.MusicPlayer)
                                 }
                             },
                         )
@@ -53,7 +55,7 @@ class MainActivity : ComponentActivity() {
                         popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
                     ) {
                         MusicPlayerScreen(
-                            state = MusicPlayerState(currentMusic = musicPreview),
+                            state = state,
                             onAction = { /* TODO */ },
                         )
                     }

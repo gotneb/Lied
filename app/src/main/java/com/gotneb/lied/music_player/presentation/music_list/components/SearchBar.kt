@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.gotneb.lied.ui.theme.LiedTheme
-import kotlin.math.max
 
 @Composable
 fun SearchBar(
@@ -56,7 +55,7 @@ fun SearchBar(
         keyboardActions = KeyboardActions(
             onSearch = {
                 if (value.isNotBlank()) {
-                    onSearchClick
+                    onSearchClick()
                     keyboardController?.hide() // Hide keyboard after action
                 }
             }
