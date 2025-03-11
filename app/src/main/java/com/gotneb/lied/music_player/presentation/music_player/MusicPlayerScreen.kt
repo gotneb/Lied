@@ -30,13 +30,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.gotneb.lied.R
+import com.gotneb.lied.music_player.presentation.music_list.MusicListState
 import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
 import com.gotneb.lied.music_player.presentation.music_player.components.ProgressAudioBar
 import com.gotneb.lied.ui.theme.LiedTheme
 
 @Composable
 fun MusicPlayerScreen(
-    state: MusicPlayerState,
+    state: MusicListState,
     onAction: (MusicPlayerAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -67,17 +68,19 @@ fun MusicPlayerScreen(
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
                     .fillMaxWidth()
-                    .fillMaxHeight(0.7f)
+                    .fillMaxHeight(0.65f)
             )
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = state.currentMusic!!.name)
-                    Text(text = state.currentMusic.singer)
+                    Text(text = state.currentMusic?.name ?: "No music")
+                    Text(text = state.currentMusic?.singer ?: "No singer")
                 }
-                IconButton(onClick = { onAction(MusicPlayerAction.OnFavoriteClick(state.currentMusic!!.id)) }) {
+                IconButton(onClick = {
+                    state.currentMusic?.let { onAction(MusicPlayerAction.OnFavoriteClick(state.currentMusic.id)) }
+                }) {
                     Icon(
                         imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite music"
+                        contentDescription = "Favorite music",
                     )
                 }
             }
@@ -148,7 +151,7 @@ fun MusicPlayerScreen(
 private fun MusicPlayerScreenPreview() {
     LiedTheme {
         MusicPlayerScreen(
-            state = MusicPlayerState(currentMusic = musicPreview, isPlaying = true),
+            state = MusicListState(currentMusic = musicPreview, isPlaying = true),
             onAction = {},
             modifier = Modifier
                 .fillMaxSize()
