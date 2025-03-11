@@ -26,18 +26,21 @@ class MusicListViewModel(
     fun onAction(action: MusicListAction) {
         when (action) {
             MusicListAction.OnPermissionDenied -> {
-                _state.update { it.copy(isPermissionGranted = false) }
+                _state.update { it.copy(
+                    isPermissionGranted = false,
+                    errorMessage = "Permission to access music storage denied.",
+                ) }
             }
             MusicListAction.OnPermissionGranted -> {
                 _state.update { it.copy(
                     isPermissionGranted = true,
-                    errorMessage = "Permission denied"
+                    errorMessage = null
                 ) }
             }
 
-            is MusicListAction.OnMusicClick -> { musicId: Long ->
+            is MusicListAction.OnMusicClick -> {
                 _state.update { it.copy(
-                    selectedMusic = _state.value.musics.find { music -> music.id == musicId }
+                    currentMusic = _state.value.musicList.find { music -> music.id == action.id }
                 ) }
             }
             is MusicListAction.OnMusicFavoriteClick -> TODO()
@@ -47,13 +50,19 @@ class MusicListViewModel(
 
             MusicListAction.OnSearchClick -> TODO()
             MusicListAction.OnShuffleClick -> TODO()
+            MusicListAction.OnGoBackClick -> TODO()
+            MusicListAction.OnNextClick -> TODO()
+            MusicListAction.OnPauseMusic -> TODO()
+            MusicListAction.OnPlayMusic -> TODO()
+            MusicListAction.OnPreviousClick -> TODO()
+            MusicListAction.OnRepeatClick -> TODO()
         }
     }
 
     fun loadMusic() {
         Log.d(TAG, "loadMusic | Getting musics...")
         repository.getMusicList()?.let { musics ->
-            _state.update { it.copy(musics = musics) }
+            _state.update { it.copy(musicList = musics) }
         }
     }
 
