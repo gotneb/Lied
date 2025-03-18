@@ -1,6 +1,5 @@
 package com.gotneb.lied.music_player.presentation.music_player
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,10 +23,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import com.gotneb.lied.R
 import com.gotneb.lied.music_player.presentation.music_list.MusicListAction
 import com.gotneb.lied.music_player.presentation.music_list.MusicListState
-import com.gotneb.lied.music_player.presentation.music_list.MusicListViewModel
 import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
 import com.gotneb.lied.music_player.presentation.music_player.components.ProgressAudioBar
 import com.gotneb.lied.ui.theme.LiedTheme
@@ -63,12 +61,12 @@ fun MusicPlayerScreen(
             Row {
                 IconButton(
                     onClick = { onAction(MusicListAction.OnGoBackClick) },
+                    modifier = Modifier.offset((-8).dp, 0.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowLeft,
                         contentDescription = "Go back",
                         modifier = Modifier
-                            .offset((-8).dp, 0.dp)
                             .size(32.dp)
                     )
                 }
@@ -156,7 +154,7 @@ fun MusicPlayerScreen(
                     Icon(
                         painter = painterResource(R.drawable.repeat),
                         contentDescription = "Repeat music",
-                        tint = MaterialTheme.colorScheme.onBackground,
+                        tint = if (state.isRepeat) Color(0xFF6739F1) else MaterialTheme.colorScheme.onBackground,
                     )
                 }
             }
@@ -169,7 +167,11 @@ fun MusicPlayerScreen(
 private fun MusicPlayerScreenPreview() {
     LiedTheme {
         MusicPlayerScreen(
-            state = MusicListState(currentMusic = musicPreview, isPlaying = true),
+            state = MusicListState(
+                currentMusic = musicPreview,
+                isPlaying = true,
+                isRepeat = false,
+            ),
             onAction = {},
             modifier = Modifier
                 .fillMaxSize()

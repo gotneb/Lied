@@ -92,7 +92,7 @@ class MusicListViewModel(
                 resumePlaybackProgressUpdates()
             }
 
-            MusicListAction.OnRepeatClick -> TODO()
+            MusicListAction.OnRepeatClick -> repeatMusic()
             MusicListAction.OnGoBackClick -> {
                 viewModelScope.launch {
                     _events.send(MusicListEvent.OnGoBackClick)
@@ -143,11 +143,14 @@ class MusicListViewModel(
         Log.d(TAG, "${::startPlaybackProgressUpdates.name} | Progress updates started")
         progressUpdateJob = viewModelScope.launch {
             while (true) {
-                Log.d(TAG, "startPlaybackProgressUpdates | Current position: ${player.currentPosition}")
+                Log.d(
+                    TAG,
+                    "startPlaybackProgressUpdates | Current position: ${player.currentPosition}"
+                )
                 if (player.isPlaying) {
                     _state.update { it.copy(currentDuration = player.currentPosition) }
                 }
-                delay(1000L)
+                delay(500L)
             }
         }
     }
@@ -182,9 +185,23 @@ class MusicListViewModel(
     }
 
     private fun sortMusicList() {
-        _state.update { it.copy(
-            musicList = _state.value.musicList.sortedBy { music -> music.duration }
-        ) }
+        _state.update {
+            it.copy(
+                musicList = _state.value.musicList.sortedBy { music -> music.duration }
+            )
+        }
+    }
+
+    private fun repeatMusic() = viewModelScope.launch {
+        Log.d(TAG, "repeatMusic | Repeat music")
+        _state.update { it.copy(isRepeat = !it.isRepeat) }
+        if (_state.value.isRepeat) {
+            player.repeatMode = ExoPlayer.REPEAT_MODE_ALL
+            _events.send(MusicListEvent.OnRepeatClick("Repeat ON"))
+        } else {
+            player.repeatMode = ExoPlayer.REPEAT_MODE_OFF
+            _events.send(MusicListEvent.OnRepeatClick("Repeat OFF"))
+        }
     }
 
     override fun onCleared() {
