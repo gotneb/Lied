@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,34 +29,29 @@ import com.gotneb.lied.ui.theme.LiedTheme
 
 @Composable
 fun ProgressAudioBar(
-    value: Float,
-    height: Dp = 4.dp,
     currentDuration: Long,
     totalDuration: Long,
+    height: Dp = 6.dp,
 ) {
-    Column {
-        Box(
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Slider(
+            value = currentDuration.toFloat(),
+            onValueChange = {/* TODO */},
+            valueRange = 0f..totalDuration.toFloat(),
+            colors = SliderDefaults.colors(
+                thumbColor = Color(0xFF6739F1),
+                activeTrackColor = Color(0xFF6739F1),
+                inactiveTrackColor = Color(0xFFD9D9D9),
+            ),
             modifier = Modifier
-                .padding(bottom = 8.dp)
-                .clip(RoundedCornerShape(100))
-        ) {
-            // Background (unfilled part of the progress bar)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height)
-                    .background(Color(0xFFD9D9D9))
-            )
-            // Filled part of the progress bar
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(value)
-                    .height(height)
-                    .background(Color(0xFF6739F1))
-            )
-        }
+                .fillMaxWidth()
+        )
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(text = currentDuration.timeToString())
@@ -68,7 +65,6 @@ fun ProgressAudioBar(
 private fun ProgressAudioBarPreview() {
     LiedTheme {
         ProgressAudioBar(
-            value = 0.35f,
             currentDuration = 84000,
             totalDuration = 120000,
         )
