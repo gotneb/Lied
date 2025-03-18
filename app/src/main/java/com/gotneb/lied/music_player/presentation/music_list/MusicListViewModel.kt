@@ -118,6 +118,11 @@ class MusicListViewModel(
 
             MusicListAction.OnStartProgressUpdates -> startPlaybackProgressUpdates()
             MusicListAction.OnStopProgressUpdates -> stopPlaybackProgressUpdates()
+            is MusicListAction.OnSeekDurationMusic -> {
+                Log.d("ProgressAudioBar", "onValueChange: ${action.duration}")
+                player.seekTo(action.duration)
+                _state.update { it.copy(currentDuration = action.duration) }
+            }
         }
     }
 

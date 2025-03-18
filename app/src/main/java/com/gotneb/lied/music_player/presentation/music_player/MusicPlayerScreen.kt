@@ -1,5 +1,6 @@
 package com.gotneb.lied.music_player.presentation.music_player
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -98,6 +99,7 @@ fun MusicPlayerScreen(
             ProgressAudioBar(
                 currentDuration = state.currentDuration,
                 totalDuration = state.totalDuration,
+                onValueChange = { onAction(MusicListAction.OnSeekDurationMusic(it.toLong())) }
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),

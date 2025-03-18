@@ -31,14 +31,14 @@ import com.gotneb.lied.ui.theme.LiedTheme
 fun ProgressAudioBar(
     currentDuration: Long,
     totalDuration: Long,
-    height: Dp = 6.dp,
+    onValueChange: (Float) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         Slider(
             value = currentDuration.toFloat(),
-            onValueChange = {/* TODO */},
+            onValueChange = onValueChange,
             valueRange = 0f..totalDuration.toFloat(),
             colors = SliderDefaults.colors(
                 thumbColor = Color(0xFF6739F1),
@@ -67,6 +67,7 @@ private fun ProgressAudioBarPreview() {
         ProgressAudioBar(
             currentDuration = 84000,
             totalDuration = 120000,
+            onValueChange = {},
         )
     }
 }

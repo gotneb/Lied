@@ -7,6 +7,7 @@ sealed interface MusicListAction {
     data object OnStartProgressUpdates : MusicListAction
     data object OnStopProgressUpdates : MusicListAction
 
+    data class OnSeekDurationMusic(val duration: Long): MusicListAction
     data object OnPlayMusicClick : MusicListAction
     data object OnPauseMusicClick : MusicListAction
     data object OnNextMusicClick : MusicListAction
