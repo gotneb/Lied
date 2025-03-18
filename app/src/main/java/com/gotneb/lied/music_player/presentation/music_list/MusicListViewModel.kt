@@ -3,19 +3,15 @@ package com.gotneb.lied.music_player.presentation.music_list
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.gotneb.lied.music_player.domain.local.MusicRepository
+import com.gotneb.lied.music_player.domain.model.Music
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -38,6 +34,7 @@ class MusicListViewModel(
 
     init {
         loadMusicFromDevice()
+        sortMusicList()
         player.playWhenReady = true
         Log.d(TAG, "State | Player prepared")
     }
@@ -52,7 +49,6 @@ class MusicListViewModel(
                     )
                 }
             }
-
             MusicListAction.OnPermissionGranted -> {
                 _state.update {
                     it.copy(
@@ -70,19 +66,7 @@ class MusicListViewModel(
                         if (_state.value.currentMusic?.id == music.id) {
                             return
                         }
-
-                        _state.update {
-                            it.copy(
-                                currentMusic = music,
-                                isPlaying = true,
-                                totalDuration = music.duration.toLong()
-                            )
-                        }
-
-                        player.setMediaItem(music.mediaItem!!)
-                        player.prepare()
-                        player.play()
-                        startPlaybackProgressUpdates()
+                        playMusic(music)
                     }
             }
 
@@ -93,14 +77,14 @@ class MusicListViewModel(
 
             MusicListAction.OnSearchClick -> TODO()
             MusicListAction.OnShuffleClick -> TODO()
-            MusicListAction.OnNextMusicClick -> TODO()
+            MusicListAction.OnNextMusicClick -> playNextMusic()
+            MusicListAction.OnPreviousClick -> playPreviousMusic()
             MusicListAction.OnPauseMusicClick -> {
                 Log.d(TAG, "onAction | Pause music clicked")
                 player.pause()
                 _state.update { it.copy(isPlaying = false) }
                 pausePlaybackProgressUpdates()
             }
-
             MusicListAction.OnPlayMusicClick -> {
                 Log.d(TAG, "onAction | Pause music clicked")
                 player.play()
@@ -108,7 +92,6 @@ class MusicListViewModel(
                 resumePlaybackProgressUpdates()
             }
 
-            MusicListAction.OnPreviousClick -> TODO()
             MusicListAction.OnRepeatClick -> TODO()
             MusicListAction.OnGoBackClick -> {
                 viewModelScope.launch {
@@ -119,14 +102,45 @@ class MusicListViewModel(
             MusicListAction.OnStartProgressUpdates -> startPlaybackProgressUpdates()
             MusicListAction.OnStopProgressUpdates -> stopPlaybackProgressUpdates()
             is MusicListAction.OnSeekDurationMusic -> {
-                Log.d("ProgressAudioBar", "onValueChange: ${action.duration}")
+                Log.d(TAG, "ProgressAudioBar | onValueChange: ${action.duration}")
                 player.seekTo(action.duration)
                 _state.update { it.copy(currentDuration = action.duration) }
             }
         }
     }
 
+    private fun playMusic(music: Music) {
+        _state.update {
+            it.copy(
+                currentMusic = music,
+                isPlaying = true,
+                totalDuration = music.duration.toLong()
+            )
+        }
+        player.setMediaItem(music.mediaItem!!)
+        player.prepare()
+        player.play()
+        startPlaybackProgressUpdates()
+    }
+
+    private fun playNextMusic() {
+        val index = _state.value.musicList
+            .indexOfFirst { music -> music.id == _state.value.currentMusic!!.id }
+        val lastIndex = _state.value.musicList.lastIndex
+        val nextMusic = _state.value.musicList[if (index == lastIndex) 0 else index + 1]
+        playMusic(nextMusic)
+    }
+
+    private fun playPreviousMusic() {
+        val index = _state.value.musicList
+            .indexOfFirst { music -> music.id == _state.value.currentMusic!!.id }
+        val lastIndex = _state.value.musicList.lastIndex
+        val previousMusic = _state.value.musicList[if (index == 0) lastIndex else index - 1]
+        playMusic(previousMusic)
+    }
+
     private fun startPlaybackProgressUpdates() {
+        Log.d(TAG, "${::startPlaybackProgressUpdates.name} | Progress updates started")
         progressUpdateJob = viewModelScope.launch {
             while (true) {
                 Log.d(TAG, "startPlaybackProgressUpdates | Current position: ${player.currentPosition}")
@@ -145,24 +159,32 @@ class MusicListViewModel(
     private fun stopPlaybackProgressUpdates() {
         progressUpdateJob?.cancel()
         progressUpdateJob = null
-        Log.d(TAG, "stopPlaybackProgressUpdates | Progress updates stopped")
+        Log.d(TAG, "${::stopPlaybackProgressUpdates.name} | Progress updates stopped")
     }
 
     private fun pausePlaybackProgressUpdates() {
+        Log.d(TAG, "${::pausePlaybackProgressUpdates.name} | Progress updates paused")
         stopPlaybackProgressUpdates()
     }
 
     private fun resumePlaybackProgressUpdates() {
+        Log.d(TAG, "${::resumePlaybackProgressUpdates.name} | Progress updates resumed")
         if (player.isPlaying) {
             startPlaybackProgressUpdates()
         }
     }
 
     fun loadMusicFromDevice() {
-        Log.d(TAG, "loadMusicFromDevice | Loading music...")
+        Log.d(TAG, "${::loadMusicFromDevice.name} | Loading music...")
         repository.getMusicList()?.let { musics ->
             _state.update { it.copy(musicList = musics) }
         }
+    }
+
+    private fun sortMusicList() {
+        _state.update { it.copy(
+            musicList = _state.value.musicList.sortedBy { music -> music.duration }
+        ) }
     }
 
     override fun onCleared() {
