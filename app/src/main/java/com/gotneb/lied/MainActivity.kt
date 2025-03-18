@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -12,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gotneb.lied.core.navigation.Route
 import com.gotneb.lied.music_player.presentation.music_list.MusicListAction
+import com.gotneb.lied.music_player.presentation.music_list.MusicListEvent
 import com.gotneb.lied.music_player.presentation.music_list.MusicListScreen
 import com.gotneb.lied.music_player.presentation.music_list.MusicListViewModel
 import com.gotneb.lied.music_player.presentation.music_player.MusicPlayerScreen
@@ -28,6 +30,14 @@ class MainActivity : ComponentActivity() {
 
                 val viewModel = koinViewModel<MusicListViewModel>()
                 val state by viewModel.state.collectAsStateWithLifecycle()
+
+                LaunchedEffect(Unit) {
+                    viewModel.events.collect { event ->
+                        when (event) {
+                            MusicListEvent.OnGoBackClick -> navController.navigateUp()
+                        }
+                    }
+                }
 
                 NavHost(
                     navController = navController,
@@ -52,7 +62,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         MusicPlayerScreen(
                             state = state,
-                            onAction = { /* TODO */ },
+                            onAction = viewModel::onAction,
                         )
                     }
                 }

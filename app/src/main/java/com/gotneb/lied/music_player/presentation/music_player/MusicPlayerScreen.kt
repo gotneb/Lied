@@ -22,6 +22,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.gotneb.lied.R
 import com.gotneb.lied.music_player.presentation.music_list.MusicListAction
 import com.gotneb.lied.music_player.presentation.music_list.MusicListState
+import com.gotneb.lied.music_player.presentation.music_list.MusicListViewModel
 import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
 import com.gotneb.lied.music_player.presentation.music_player.components.ProgressAudioBar
 import com.gotneb.lied.ui.theme.LiedTheme
@@ -42,6 +45,13 @@ fun MusicPlayerScreen(
     onAction: (MusicListAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    DisposableEffect(Unit) {
+        onAction(MusicListAction.OnStartProgressUpdates)
+        onDispose {
+            onAction(MusicListAction.OnStopProgressUpdates)
+        }
+    }
+
     Scaffold { innerPadding ->
         Column(
             verticalArrangement = Arrangement.spacedBy(22.dp),
@@ -69,7 +79,7 @@ fun MusicPlayerScreen(
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
                     .fillMaxWidth()
-                    .fillMaxHeight(0.65f)
+                    .fillMaxHeight(0.6f)
             )
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
@@ -86,7 +96,6 @@ fun MusicPlayerScreen(
                 }
             }
             ProgressAudioBar(
-                value = 0.37f,
                 currentDuration = state.currentDuration,
                 totalDuration = state.totalDuration,
             )
@@ -114,7 +123,7 @@ fun MusicPlayerScreen(
                         if (state.isPlaying) {
                             onAction(MusicListAction.OnPauseMusicClick)
                         } else {
-                            onAction(MusicListAction.OnNextMusicClick)
+                            onAction(MusicListAction.OnPlayMusicClick)
                         }
                     },
                     modifier = Modifier
@@ -123,7 +132,13 @@ fun MusicPlayerScreen(
                         .background(MaterialTheme.colorScheme.onBackground)
                 ) {
                     Icon(
-                        painter = painterResource(if (state.isPlaying) R.drawable.pause else R.drawable.play),
+                        painter = painterResource(
+                            if (state.isPlaying) {
+                                R.drawable.pause
+                            } else {
+                                R.drawable.play
+                            }
+                        ),
                         contentDescription = if (state.isPlaying) "Pause music" else "Play music",
                         tint = MaterialTheme.colorScheme.background,
                     )

@@ -1,7 +1,10 @@
 package com.gotneb.lied.music_player.data.local
 
 import android.content.ContentResolver
+import android.content.ContentUris
+import android.net.Uri
 import android.provider.MediaStore
+import androidx.media3.common.MediaItem
 import com.gotneb.lied.music_player.domain.local.MusicRepository
 import com.gotneb.lied.music_player.domain.model.Music
 import com.gotneb.lied.R
@@ -36,9 +39,11 @@ class MusicRepositoryImpl(
                 val name = cursor.getString(filename)
                 val artistName = cursor.getString(artistColumn)
                 val duration = cursor.getInt(duration)
+                val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+                val mediaItem = MediaItem.fromUri(uri)
 
-                musicList.add(Music(id, name, artistName, duration, false, R.drawable.music_cover_placeholder))
-                println("Music -> $name - $artistName")
+                musicList.add(Music(id, uri, mediaItem, name, artistName, duration, false, R.drawable.music_cover_placeholder))
+                println("[Music] -> $name - $artistName | [Uri] -> $uri | [mediaItem] -> $mediaItem")
             }
 
             return musicList

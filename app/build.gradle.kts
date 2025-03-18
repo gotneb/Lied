@@ -41,16 +41,12 @@ android {
 }
 
 dependencies {
-
-    implementation("androidx.activity:activity-compose:1.10.1")
-
-    implementation(libs.bundles.exoplayer)
-
-    implementation(libs.bundles.compose)
-
-    implementation(libs.bundles.koin)
-
-    implementation(libs.bundles.ktor)
+    with(libs) {
+        implementation(bundles.exoplayer)
+        implementation(bundles.compose)
+        implementation(bundles.koin)
+        implementation(bundles.ktor)
+    }
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
