@@ -6,11 +6,13 @@ import com.gotneb.lied.music_player.domain.model.Music
 @Immutable
 data class MusicListState(
     val searchQuery: String = "",
+    val filteredMusics: List<Music> = emptyList(),
+
     val totalDuration: Long = 120000,
     val currentDuration: Long = 84000, // just for preview :P
 
-    val musicList: List<Music> = emptyList(),
-    val filteredMusics: List<Music> = emptyList(),
+    val currentPlaylist: List<Music> = emptyList(),
+    val originalPlaylist: List<Music> = emptyList(),
     val currentMusic: Music? = null,
 
     val isPlaying: Boolean = false,

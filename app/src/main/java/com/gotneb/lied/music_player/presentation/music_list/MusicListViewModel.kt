@@ -36,7 +36,7 @@ class MusicListViewModel(
         loadMusicFromDevice()
         sortMusicList()
         player.playWhenReady = true
-        Log.d(TAG, "State | Player prepared")
+        Log.d(TAG, "init | Player prepared")
     }
 
     fun onAction(action: MusicListAction) {
@@ -49,6 +49,7 @@ class MusicListViewModel(
                     )
                 }
             }
+
             MusicListAction.OnPermissionGranted -> {
                 _state.update {
                     it.copy(
@@ -59,7 +60,7 @@ class MusicListViewModel(
             }
 
             is MusicListAction.OnMusicClick -> {
-                _state.value.musicList
+                _state.value.originalPlaylist
                     .find { music -> music.id == action.id }
                     ?.let { music ->
                         // Same music, nothing needs to be changed
@@ -76,7 +77,7 @@ class MusicListViewModel(
             }
 
             MusicListAction.OnSearchClick -> TODO()
-            MusicListAction.OnShuffleClick -> TODO()
+            MusicListAction.OnShuffleClick -> toggleShuffle()
             MusicListAction.OnNextMusicClick -> playNextMusic()
             MusicListAction.OnPreviousClick -> playPreviousMusic()
             MusicListAction.OnPauseMusicClick -> {
@@ -85,6 +86,7 @@ class MusicListViewModel(
                 _state.update { it.copy(isPlaying = false) }
                 pausePlaybackProgressUpdates()
             }
+
             MusicListAction.OnPlayMusicClick -> {
                 Log.d(TAG, "onAction | Pause music clicked")
                 player.play()
@@ -106,6 +108,8 @@ class MusicListViewModel(
                 player.seekTo(action.duration)
                 _state.update { it.copy(currentDuration = action.duration) }
             }
+
+            MusicListAction.OnPlayRandomMusicClick -> playRandomMusic()
         }
     }
 
@@ -124,18 +128,18 @@ class MusicListViewModel(
     }
 
     private fun playNextMusic() {
-        val index = _state.value.musicList
+        val index = _state.value.currentPlaylist
             .indexOfFirst { music -> music.id == _state.value.currentMusic!!.id }
-        val lastIndex = _state.value.musicList.lastIndex
-        val nextMusic = _state.value.musicList[if (index == lastIndex) 0 else index + 1]
+        val lastIndex = _state.value.currentPlaylist.lastIndex
+        val nextMusic = _state.value.currentPlaylist[if (index == lastIndex) 0 else index + 1]
         playMusic(nextMusic)
     }
 
     private fun playPreviousMusic() {
-        val index = _state.value.musicList
+        val index = _state.value.currentPlaylist
             .indexOfFirst { music -> music.id == _state.value.currentMusic!!.id }
-        val lastIndex = _state.value.musicList.lastIndex
-        val previousMusic = _state.value.musicList[if (index == 0) lastIndex else index - 1]
+        val lastIndex = _state.value.currentPlaylist.lastIndex
+        val previousMusic = _state.value.currentPlaylist[if (index == 0) lastIndex else index - 1]
         playMusic(previousMusic)
     }
 
@@ -180,14 +184,19 @@ class MusicListViewModel(
     fun loadMusicFromDevice() {
         Log.d(TAG, "${::loadMusicFromDevice.name} | Loading music...")
         repository.getMusicList()?.let { musics ->
-            _state.update { it.copy(musicList = musics) }
+            _state.update { it.copy(
+                originalPlaylist = musics,
+                currentPlaylist = musics,
+            ) }
         }
     }
 
     private fun sortMusicList() {
         _state.update {
+            val sorted = _state.value.originalPlaylist.sortedBy { music -> music.duration }
             it.copy(
-                musicList = _state.value.musicList.sortedBy { music -> music.duration }
+                originalPlaylist = sorted,
+                currentPlaylist = sorted,
             )
         }
     }
@@ -201,6 +210,42 @@ class MusicListViewModel(
         } else {
             player.repeatMode = ExoPlayer.REPEAT_MODE_OFF
             _events.send(MusicListEvent.OnRepeatClick("Repeat OFF"))
+        }
+    }
+
+    private fun toggleShuffle() {
+        Log.d(TAG, "${::toggleShuffle.name} | Toggling music")
+        _state.update { current ->
+            if (current.isShuffle) {
+                // Restore original order
+                current.copy(
+                    currentPlaylist = current.originalPlaylist,
+                    isShuffle = false,
+                )
+            } else {
+                current.copy(
+                    currentPlaylist = current.currentPlaylist.shuffled(),
+                    isShuffle = true,
+                )
+            }
+        }
+    }
+
+    private fun shuffleCurrentPlaylist() {
+        Log.d(TAG, "${::shuffleCurrentPlaylist.name} | Shuffling music")
+        _state.update { it.copy(
+            currentPlaylist = it.currentPlaylist.shuffled(),
+            isShuffle = true,
+        ) }
+    }
+
+    private fun playRandomMusic() {
+        Log.d(TAG, "${::playRandomMusic.name} | Playing random music")
+        // shuffleCurrentPlaylist()
+        val randomIndex = (0 until _state.value.originalPlaylist.size).random()
+        playMusic(_state.value.originalPlaylist[randomIndex])
+        viewModelScope.launch {
+            _events.send(MusicListEvent.GoToMusicPlayer)
         }
     }
 

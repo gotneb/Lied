@@ -72,14 +72,14 @@ fun MusicListScreen(
     val musics = if (LocalInspectionMode.current) {
         remember { MockUtils.getMusics() }
     } else {
-        state.musicList
+        state.currentPlaylist
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onAction(MusicListAction.OnShuffleClick) },
+                onClick = { onAction(MusicListAction.OnPlayRandomMusicClick) },
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
@@ -114,7 +114,7 @@ fun MusicListScreen(
             }
             item {
                 Text(
-                    text = "${state.musicList.size} Songs",
+                    text = "${state.originalPlaylist.size} Songs",
                     color = MaterialTheme.colorScheme.onBackground,
                 )
             }

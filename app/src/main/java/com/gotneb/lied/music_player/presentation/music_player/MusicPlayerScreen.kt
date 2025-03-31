@@ -108,7 +108,7 @@ fun MusicPlayerScreen(
                     Icon(
                         painter = painterResource(R.drawable.shuffle),
                         contentDescription = "Select random music",
-                        tint = MaterialTheme.colorScheme.onBackground,
+                        tint = if (state.isShuffle) Color(0xFF6739F1) else MaterialTheme.colorScheme.onBackground,
                     )
                 }
                 IconButton(onClick = { onAction(MusicListAction.OnPreviousClick) }) {

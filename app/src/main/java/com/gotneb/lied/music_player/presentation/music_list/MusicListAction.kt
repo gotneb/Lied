@@ -21,4 +21,5 @@ sealed interface MusicListAction {
     data class OnSearchQueryChange(val query: String): MusicListAction
 
     data object OnSearchClick: MusicListAction
+    data object OnPlayRandomMusicClick : MusicListAction
 }
