@@ -1,6 +1,7 @@
 package com.gotneb.lied.music_player.presentation.music_list
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +32,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.gotneb.lied.R
+import com.gotneb.lied.music_player.data.services.MusicPlayerService
 import com.gotneb.lied.music_player.data.utils.MockUtils
 import com.gotneb.lied.music_player.presentation.music_list.components.MusicListItem
 import com.gotneb.lied.music_player.presentation.music_list.components.SearchBar
@@ -42,10 +45,11 @@ fun MusicListScreen(
     modifier: Modifier = Modifier
 ) {
     // Permission launcher
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
+    val permissionsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.all { it.value }
+        if (allGranted) {
             onAction(MusicListAction.OnPermissionGranted)
         } else {
             onAction(MusicListAction.OnPermissionDenied)
@@ -56,16 +60,30 @@ fun MusicListScreen(
 
     // Check and request permission when the screen is launched
     LaunchedEffect(Unit) {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val permissionsToRequest = mutableListOf<String>()
+
+        // Add storage permission based on Android version
+        val storagePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_AUDIO
         } else {
             Manifest.permission.READ_EXTERNAL_STORAGE
         }
+        permissionsToRequest.add(storagePermission)
 
-        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+        // Add notification permission for Android 13+ (API 33+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        // Check if all permissions are already granted
+        val allPermissionsGranted = permissionsToRequest.all { permission ->
+            ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        }
+
+        if (allPermissionsGranted) {
             onAction(MusicListAction.OnPermissionGranted)
         } else {
-            permissionLauncher.launch(permission)
+            permissionsLauncher.launch(permissionsToRequest.toTypedArray())
         }
     }
 

@@ -1,9 +1,16 @@
 package com.gotneb.lied.music_player.presentation.music_list
 
+import android.app.Application
+import android.content.ComponentName
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.MoreExecutors
+import com.gotneb.lied.music_player.data.services.PlaybackService
 import com.gotneb.lied.music_player.domain.local.MusicRepository
 import com.gotneb.lied.music_player.domain.model.Music
 import kotlinx.coroutines.Job
@@ -17,12 +24,8 @@ import kotlinx.coroutines.launch
 
 class MusicListViewModel(
     private val repository: MusicRepository,
-    private val player: ExoPlayer,
-) : ViewModel() {
-
-    companion object {
-        val TAG = MusicListViewModel::class.simpleName!!
-    }
+    application: Application,
+) : AndroidViewModel(application) {
 
     private val _state = MutableStateFlow(MusicListState())
     val state = _state.asStateFlow()
@@ -32,11 +35,25 @@ class MusicListViewModel(
 
     private var progressUpdateJob: Job? = null
 
+    private lateinit var player: Player
+
     init {
-        loadMusicFromDevice()
-        sortMusicList()
-        player.playWhenReady = true
-        Log.d(TAG, "init | Player prepared")
+        Log.d(TAG, "init | START")
+        val sessionToken = SessionToken(
+            application,
+            ComponentName(application, PlaybackService::class.java)
+        )
+        val controllerFuture = MediaController.Builder(application, sessionToken).buildAsync()
+        controllerFuture.addListener({
+            player = controllerFuture.get()
+            Log.d(TAG, "init | Player loaded")
+
+            loadMusicFromDevice()
+            sortMusicList()
+            player.playWhenReady = true
+            Log.d(TAG, "init | Player prepared")
+            // MediaController is available here with controllerFuture.get()
+        }, MoreExecutors.directExecutor())
     }
 
     fun onAction(action: MusicListAction) {
@@ -184,10 +201,12 @@ class MusicListViewModel(
     fun loadMusicFromDevice() {
         Log.d(TAG, "${::loadMusicFromDevice.name} | Loading music...")
         repository.getMusicList()?.let { musics ->
-            _state.update { it.copy(
-                originalPlaylist = musics,
-                currentPlaylist = musics,
-            ) }
+            _state.update {
+                it.copy(
+                    originalPlaylist = musics,
+                    currentPlaylist = musics,
+                )
+            }
         }
     }
 
@@ -213,6 +232,15 @@ class MusicListViewModel(
         }
     }
 
+    // TODO: is this needed?
+    private fun togglePlayback() {
+        if (player.isPlaying) {
+            onAction(MusicListAction.OnPauseMusicClick)
+        } else {
+            onAction(MusicListAction.OnPlayMusicClick)
+        }
+    }
+
     private fun toggleShuffle() {
         Log.d(TAG, "${::toggleShuffle.name} | Toggling music")
         _state.update { current ->
@@ -233,10 +261,12 @@ class MusicListViewModel(
 
     private fun shuffleCurrentPlaylist() {
         Log.d(TAG, "${::shuffleCurrentPlaylist.name} | Shuffling music")
-        _state.update { it.copy(
-            currentPlaylist = it.currentPlaylist.shuffled(),
-            isShuffle = true,
-        ) }
+        _state.update {
+            it.copy(
+                currentPlaylist = it.currentPlaylist.shuffled(),
+                isShuffle = true,
+            )
+        }
     }
 
     private fun playRandomMusic() {
@@ -253,5 +283,9 @@ class MusicListViewModel(
         super.onCleared()
         player.release()
         Log.d(TAG, "onCleared | Player released")
+    }
+
+    companion object {
+        val TAG = MusicListViewModel::class.simpleName!!
     }
 }
