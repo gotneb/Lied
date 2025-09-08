@@ -1,5 +1,6 @@
 package com.gotneb.lied.music_player.di
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.media3.common.AudioAttributes
 import androidx.media3.exoplayer.ExoPlayer
 import com.gotneb.lied.music_player.data.local.MusicRepositoryImpl
@@ -13,6 +14,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { androidContext().contentResolver }
+    single { LocalBroadcastManager.getInstance(androidContext()) }
     single {
         ExoPlayer
             .Builder(androidContext())
