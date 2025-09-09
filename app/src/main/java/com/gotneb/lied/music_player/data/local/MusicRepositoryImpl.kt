@@ -5,6 +5,7 @@ import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import com.gotneb.lied.music_player.domain.local.MusicRepository
 import com.gotneb.lied.music_player.domain.model.Music
 import com.gotneb.lied.R
@@ -12,7 +13,6 @@ import com.gotneb.lied.R
 class MusicRepositoryImpl(
     private val contentResolver: ContentResolver
 ): MusicRepository {
-
     override fun getMusicList(): List<Music>? {
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
@@ -40,7 +40,18 @@ class MusicRepositoryImpl(
                 val artistName = cursor.getString(artistColumn)
                 val duration = cursor.getInt(duration)
                 val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
-                val mediaItem = MediaItem.fromUri(uri)
+
+                // Create MediaItem with proper metadata for notifications
+                val metadata = MediaMetadata.Builder()
+                    .setTitle(name)
+                    .setArtist(artistName)
+                    .setAlbumTitle("Unknown Album") // Could be enhanced to read album from MediaStore
+                    .build()
+
+                val mediaItem = MediaItem.Builder()
+                    .setUri(uri)
+                    .setMediaMetadata(metadata)
+                    .build()
 
                 musicList.add(Music(id, uri, mediaItem, name, artistName, duration, false, R.drawable.music_cover_placeholder))
                 println("[Music] -> $name - $artistName | [Uri] -> $uri | [mediaItem] -> $mediaItem")

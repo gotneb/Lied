@@ -72,7 +72,7 @@ fun MusicPlayerScreen(
                 }
             }
             Image(
-                painter = painterResource(id = R.drawable.totoro),
+                painter = painterResource(id = R.drawable.music_cover_placeholder),
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier

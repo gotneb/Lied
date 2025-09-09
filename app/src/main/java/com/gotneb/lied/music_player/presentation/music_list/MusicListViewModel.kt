@@ -2,7 +2,9 @@ package com.gotneb.lied.music_player.presentation.music_list
 
 import android.app.Application
 import android.content.ComponentName
+import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
@@ -39,6 +41,11 @@ class MusicListViewModel(
 
     init {
         Log.d(TAG, "init | START")
+        
+        // Start the PlaybackService as foreground service
+        val serviceIntent = Intent(application, PlaybackService::class.java)
+        ContextCompat.startForegroundService(application, serviceIntent)
+        
         val sessionToken = SessionToken(
             application,
             ComponentName(application, PlaybackService::class.java)

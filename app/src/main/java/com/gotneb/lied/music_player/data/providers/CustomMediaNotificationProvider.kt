@@ -12,6 +12,9 @@ import androidx.media3.session.MediaStyleNotificationHelper
 import com.google.common.collect.ImmutableList
 import com.gotneb.lied.R
 import com.gotneb.lied.music_player.data.services.MusicPlayerService.Companion.CHANNEL_ID
+import android.content.Intent
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.IconCompat
 
 @UnstableApi
 class CustomMediaNotificationProvider(
@@ -26,7 +29,7 @@ class CustomMediaNotificationProvider(
         val player = mediaSession.player
         val metadata = player.mediaMetadata
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(metadata.title ?: "Unknown Title")
             .setContentText(metadata.artist ?: "Unknown Artist")
             .setSubText(metadata.albumTitle ?: "Unknown Album")
@@ -38,12 +41,26 @@ class CustomMediaNotificationProvider(
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
-            .setStyle(
-                MediaStyleNotificationHelper.MediaStyle(mediaSession)
-                    .setShowActionsInCompactView(0, 1, 2)
-            )
-            .build()
 
+        // Add actions from command buttons
+        val compactViewIndices = mutableListOf<Int>()
+        mediaButtonPreferences.forEachIndexed { index, commandButton ->
+            val action = actionFactory.createMediaAction(
+                mediaSession,
+                IconCompat.createWithResource(context, R.drawable.play),
+                commandButton.displayName,
+                commandButton.playerCommand
+            )
+            builder.addAction(action)
+            if (index < 3) compactViewIndices.add(index)
+        }
+
+        builder.setStyle(
+            MediaStyleNotificationHelper.MediaStyle(mediaSession)
+                .setShowActionsInCompactView(*compactViewIndices.toIntArray())
+        )
+
+        val notification = builder.build()
         return MediaNotification(101, notification)
     }
 
