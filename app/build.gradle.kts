@@ -46,6 +46,7 @@ dependencies {
         implementation(bundles.compose)
         implementation(bundles.koin)
         implementation(bundles.ktor)
+        implementation(bundles.coil)
     }
 
     implementation(libs.androidx.core.ktx)

@@ -35,6 +35,7 @@ import com.gotneb.lied.R
 import com.gotneb.lied.music_player.presentation.music_list.MusicListAction
 import com.gotneb.lied.music_player.presentation.music_list.MusicListState
 import com.gotneb.lied.music_player.presentation.music_list.components.musicPreview
+import com.gotneb.lied.music_player.presentation.music_player.components.MusicCoverImage
 import com.gotneb.lied.music_player.presentation.music_player.components.ProgressAudioBar
 import com.gotneb.lied.ui.theme.LiedTheme
 
@@ -71,15 +72,7 @@ fun MusicPlayerScreen(
                     )
                 }
             }
-            Image(
-                painter = painterResource(id = R.drawable.music_cover_placeholder),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.6f)
-            )
+            MusicCoverImage(coverPath = state.currentMusic?.albumCover)
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = state.currentMusic?.name ?: "No music")

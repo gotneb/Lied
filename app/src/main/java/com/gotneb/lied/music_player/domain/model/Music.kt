@@ -16,4 +16,5 @@ data class Music(
     val isFavorite: Boolean,
     @DrawableRes
     val coverRes: Int,
+    val albumCover: String? = null,
 )
